@@ -1,0 +1,92 @@
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/dialogRootView"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:gravity="center_horizontal"
+	android:orientation="vertical"
+	android:padding="24dp">
+	<View
+		android:id="@+id/handleBar"
+		android:layout_width="40dp"
+		android:layout_height="4dp"
+		android:layout_marginBottom="16dp"
+		android:background="#FFFFFF" />
+	<ImageView
+		android:id="@+id/avatarImage"
+		android:layout_width="110dp"
+		android:layout_height="110dp"
+		android:layout_marginBottom="16dp"
+		android:src="@drawable/default_image"
+		android:scaleType="centerCrop"
+		android:focusable="false" />
+	<TextView
+		android:id="@+id/tvTitle"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingBottom="4dp"
+		android:gravity="center_horizontal|center_vertical"
+		android:text="IqwanoINO"
+		android:textSize="26sp"
+		android:textStyle="bold"
+		android:focusable="false" />
+	<TextView
+		android:id="@+id/tvSubtitle"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingBottom="21dp"
+		android:gravity="center_horizontal|center_vertical"
+		android:text="Developer | Maintainer"
+		android:textSize="16sp"
+		android:focusable="false" />
+	<TextView
+		android:id="@+id/tvQuote"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingBottom="35dp"
+		android:gravity="center_horizontal|center_vertical"
+		android:text="“Creativity Is Everything”"
+		android:textSize="14sp"
+		android:focusable="false" />
+	<LinearLayout
+		android:id="@+id/linear2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingBottom="12dp"
+		android:gravity="center_horizontal|center_vertical"
+		android:orientation="horizontal">
+		<TextView
+			android:id="@+id/btnGithub"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="GitHub"
+			android:textSize="14sp"
+			android:textStyle="bold"
+			android:layout_marginEnd="8dp"
+			android:focusable="false"
+			android:paddingHorizontal="20dp"
+			android:paddingVertical="12dp" />
+		<TextView
+			android:id="@+id/btnTelegram"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Telegram"
+			android:textSize="14sp"
+			android:textStyle="bold"
+			android:focusable="false"
+			android:paddingHorizontal="20dp"
+			android:paddingVertical="12dp" />
+	</LinearLayout>
+	<TextView
+		android:id="@+id/btnDonasi"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Support / Donation"
+		android:textSize="14sp"
+		android:textStyle="bold"
+		android:focusable="false"
+		android:paddingHorizontal="32dp"
+		android:paddingVertical="12dp" />
+</LinearLayout>

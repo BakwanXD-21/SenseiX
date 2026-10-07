@@ -99,5 +99,10 @@
   "overlay_title": "Izin Diperlukan",
   "overlay_subtitle": "Tampilkan di Atas Aplikasi Lain",
   "overlay_message": "SenseiX memerlukan izin 'Tampilkan di atas aplikasi lain' agar optimalisasi performa dan overlay real-time dapat berjalan lancar di latar belakang.\n\n• Menampilkan statistik performa secara real-time\n• Mencegah proses optimalisasi dihentikan oleh sistem\n• Sepenuhnya aman dan tidak mengumpulkan data pribadi",
-  "btn_grant_permission": "Berikan Izin"
+  "btn_grant_permission": "Berikan Izin",
+  
+  "itemsetting_language_title": "Bahasa",
+  "itemsetting_language_subtitle": "Ganti bahasa aplikasi",
+  "language_dialog_title": "Pilih Bahasa",
+  "language_dialog_subtitle": "Langsung diterapkan tanpa restart"
 }

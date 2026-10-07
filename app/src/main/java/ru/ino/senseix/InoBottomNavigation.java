@@ -323,4 +323,10 @@ public class InoBottomNavigation extends View {
 		this.barBackgroundColor = color;
 		invalidate();
 	}
+    
+    public void setTabTitle(int index, String title) {
+	if (index < 0 || index >= tabs.size()) return;
+	tabs.set(index, title);
+	invalidate();
+}
 }

@@ -99,5 +99,10 @@
   "overlay_title": "需要权限",
   "overlay_subtitle": "显示在其他应用上层",
   "overlay_message": "SenseiX 需要“显示在其他应用上层”权限，才能让性能优化和实时悬浮窗在后台流畅运行。\n\n• 显示实时性能数据\n• 防止优化进程被系统终止\n• 完全安全，不会收集任何个人数据",
-  "btn_grant_permission": "授予权限"
+  "btn_grant_permission": "授予权限",
+  
+  "itemsetting_language_title": "语言",
+  "itemsetting_language_subtitle": "更改应用语言",
+  "language_dialog_title": "选择语言",
+  "language_dialog_subtitle": "立即生效，无需重启"
 }

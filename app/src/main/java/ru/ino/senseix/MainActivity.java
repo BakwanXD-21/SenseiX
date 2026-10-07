@@ -56,7 +56,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import android.view.inputmethod.InputMethodManager;
-import android.provider.Settings;
+import android.provider.Settings;
+
 
 public class MainActivity extends Activity {
 	
@@ -251,6 +252,10 @@ public class MainActivity extends Activity {
 	
 	private ShizukuHelper inoka;
 	private SharedPreferences user;
+    
+    private LinearLayout itemsetting_language;
+private ImageView itemsetting_language_icon;
+private TextView itemsetting_language_value;
 	
 	@Override
 	protected void onCreate(Bundle _savedInstanceState) {
@@ -341,7 +346,10 @@ public class MainActivity extends Activity {
 		settingitembg = findViewById(R.id.settingitembg);
 		itemsetting_terminaltextsize = findViewById(R.id.itemsetting_terminaltextsize);
 		itemsetting_appearances = findViewById(R.id.itemsetting_appearances);
-		customdns_feature = findViewById(R.id.customdns_feature);
+		itemsetting_language = findViewById(R.id.itemsetting_language);
+itemsetting_language_icon = findViewById(R.id.itemsetting_language_icon);
+itemsetting_language_value = findViewById(R.id.itemsetting_language_value);
+        customdns_feature = findViewById(R.id.customdns_feature);
 		customreso_feature = findViewById(R.id.customreso_feature);
 		customdpi_feature = findViewById(R.id.customdpi_feature);
 		monitoring_feature = findViewById(R.id.monitoring_feature);
@@ -540,109 +548,99 @@ public class MainActivity extends Activity {
 		clearbutton.setOnClickListener(_v -> inputsearch.setText(""));
 		
 		morebtn.setOnClickListener(_v -> {
-			Context context = MainActivity.this;
-			float dp = getResources().getDisplayMetrics().density;
-			android.graphics.Typeface inoFont = android.graphics.Typeface.createFromAsset(getAssets(), "fonts/main.ttf");
-			int popupWidth = (int)(180 * dp); // Sedikit diperkecil karena tanpa icon
-			
-			// --- WARNA TEMA MATERIAL 3 (DARK MODE) ---
-			final int M3_SURFACE_CONTAINER = themeHelper.getColor("colorSurface");;
-			final int M3_ON_SURFACE = themeHelper.getColor("colorOnSurfaceVariant");;
-			
-			// Root layout untuk PopupWindow (M3 Style)
-			LinearLayout root = new LinearLayout(context);
-			root.setOrientation(LinearLayout.VERTICAL);
-			root.setPadding(0,18,0,18); // Padding vertikal khas M3
-			root.setBackground(new GradientDrawable() {{
-					setColor(M3_SURFACE_CONTAINER); 
-					setCornerRadius(16 * dp); // M3 Menu Corner: 16dp
-				}});
-			
-			// --- TAMBAHKAN KODE INI SETELAH DEFINISI ROOT ---
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-				root.setOutlineProvider(new android.view.ViewOutlineProvider() {
-					@Override
-					public void getOutline(View view, android.graphics.Outline outline) {
-						// Memotong outline presisi mengikuti ukuran layout dan radius 16dp
-						outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), 16 * dp);
-					}
-				});
-				root.setClipToOutline(true); // Ini kunci utamanya agar ripple terpotong sempurna!
+	Context context = MainActivity.this;
+	float dp = getResources().getDisplayMetrics().density;
+	android.graphics.Typeface inoFont = android.graphics.Typeface.createFromAsset(getAssets(), "fonts/main.ttf");
+	int popupWidth = (int)(180 * dp);
+	
+	// --- WARNA TEMA MATERIAL 3 (DARK MODE) ---
+	final int M3_SURFACE_CONTAINER = themeHelper.getColor("colorSurface");
+	final int M3_ON_SURFACE = themeHelper.getColor("colorOnSurfaceVariant");
+	
+	// Root layout untuk PopupWindow (M3 Style)
+	LinearLayout root = new LinearLayout(context);
+	root.setOrientation(LinearLayout.VERTICAL);
+	root.setPadding(0,18,0,18);
+	root.setBackground(new GradientDrawable() {{
+			setColor(M3_SURFACE_CONTAINER); 
+			setCornerRadius(16 * dp);
+		}});
+	
+	if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+		root.setOutlineProvider(new android.view.ViewOutlineProvider() {
+			@Override
+			public void getOutline(View view, android.graphics.Outline outline) {
+				outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), 16 * dp);
 			}
-			
-			final PopupWindow popup = new PopupWindow(root, popupWidth, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-			popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-			popup.setOutsideTouchable(true);
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-				popup.setElevation(6 * dp); // Efek bayangan mengambang
-			}
-			
-			// Menu baru sesuai permintaan
-			String[] items = {"All", "System", "Game", "User"};
-			
-			for (int i = 0; i < items.length; i++) {
-				String title = items[i];
-				
-				LinearLayout row = new LinearLayout(context);
-				row.setOrientation(LinearLayout.HORIZONTAL);
-				row.setGravity(Gravity.CENTER_VERTICAL);
-				// Padding kiri dibuat 16dp agar teks tidak terlalu menempel ke tepi karena tanpa icon
-				row.setPadding((int)(16 * dp), (int)(12 * dp), (int)(16 * dp), (int)(12 * dp)); 
-				
-				// Text Menu M3 Style (Tanpa Icon)
-				TextView menuItem = new TextView(context);
-				menuItem.setText(title);
-				menuItem.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15); // Sedikit disesuaikan agar pas sebagai teks murni
-				menuItem.setTextColor(M3_ON_SURFACE);
-				menuItem.setSingleLine(true);
-				menuItem.setTypeface(inoFont);
-				menuItem.setEllipsize(TextUtils.TruncateAt.END);
-				row.addView(menuItem);
-				
-				// Efek klik ripple M3 (Membulat di ujung row)
-				row.setBackgroundResource(R.drawable.ripple);
-				row.setClickable(true);
-				row.setFocusable(true);
-				
-				// Klik listener untuk masing-masing kategori
-				row.setOnClickListener(v1 -> {
-					popup.dismiss();
-					switch (title) {
-						case "All":
-						// Pastikan nama konstanta ini sesuai dengan yang ada di AppListHelper-mu (misal MODE_ALL atau sejenisnya)
-						loadApplications(AppListHelper.MODE_ALL); 
-						type = "0";
-						break;
-						
-						case "System":
-						loadApplications(AppListHelper.MODE_SYSTEM);
-						type = "1";
-						break;
-						
-						case "Game":
-						// Pastikan nama konstanta ini sesuai dengan yang ada di AppListHelper-mu (misal MODE_GAME atau sejenisnya)
-						loadApplications(AppListHelper.MODE_GAMES);
-						type = "2";
-						break;
-						
-						case "User":
-						loadApplications(AppListHelper.MODE_USER);
-						type = "3";
-						break;
-					}
-				});
-				
-				// Tambahkan item ke dalam kontainer
-				root.addView(row, new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT, 
-				ViewGroup.LayoutParams.WRAP_CONTENT
-				));
-			}
-			
-			// Tampilkan popup tepat di bawah tombol anchor (morebtn) dengan sedikit jarak 4dp
-			popup.showAsDropDown(morebtn, 0, (int)(4 * dp));
-			
 		});
+		root.setClipToOutline(true);
+	}
+	
+	final PopupWindow popup = new PopupWindow(root, popupWidth, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+	popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+	popup.setOutsideTouchable(true);
+	if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+		popup.setElevation(6 * dp);
+	}
+	
+	// Key dari LanguageLoader (teks ikut bahasa aktif), fallback Inggris
+	final String[] keys = {"menu_all", "menu_system", "menu_game", "menu_user"};
+	final String[] fallbacks = {"All", "System", "Game", "User"};
+	
+	for (int i = 0; i < keys.length; i++) {
+		final String key = keys[i];
+		
+		LinearLayout row = new LinearLayout(context);
+		row.setOrientation(LinearLayout.HORIZONTAL);
+		row.setGravity(Gravity.CENTER_VERTICAL);
+		row.setPadding((int)(16 * dp), (int)(12 * dp), (int)(16 * dp), (int)(12 * dp)); 
+		
+		TextView menuItem = new TextView(context);
+		menuItem.setText(LanguageLoader.get(key, fallbacks[i]));
+		menuItem.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+		menuItem.setTextColor(M3_ON_SURFACE);
+		menuItem.setSingleLine(true);
+		menuItem.setTypeface(inoFont);
+		menuItem.setEllipsize(TextUtils.TruncateAt.END);
+		row.addView(menuItem);
+		
+		row.setBackgroundResource(R.drawable.ripple);
+		row.setClickable(true);
+		row.setFocusable(true);
+		
+		row.setOnClickListener(v1 -> {
+			popup.dismiss();
+			switch (key) {
+				case "menu_all":
+				loadApplications(AppListHelper.MODE_ALL); 
+				type = "0";
+				break;
+				
+				case "menu_system":
+				loadApplications(AppListHelper.MODE_SYSTEM);
+				type = "1";
+				break;
+				
+				case "menu_game":
+				loadApplications(AppListHelper.MODE_GAMES);
+				type = "2";
+				break;
+				
+				case "menu_user":
+				loadApplications(AppListHelper.MODE_USER);
+				type = "3";
+				break;
+			}
+		});
+		
+		root.addView(row, new LinearLayout.LayoutParams(
+		LinearLayout.LayoutParams.MATCH_PARENT, 
+		ViewGroup.LayoutParams.WRAP_CONTENT
+		));
+	}
+	
+	popup.showAsDropDown(morebtn, 0, (int)(4 * dp));
+});
 		
 		actionbtn.setOnClickListener(_v -> {
 			if (action.equals("terminal")) {
@@ -861,6 +859,9 @@ public class MainActivity extends Activity {
 		
 		appearanceitem_palette.setOnClickListener(_v -> tampilkanColorPickerDialog());
 		
+        itemsetting_language.setOnClickListener(_v ->
+	LanguageMenu.show(MainActivity.this, themeHelper, LanguageMenu.saved(user), code -> applyLanguage(code)));
+    
 		switch_moduleinstall.setOnCheckedChangeListener((_buttonView, _isChecked) -> {
 			user.edit().putBoolean("onmodule", _isChecked).apply();
 			onModule = _isChecked ? "true" : "false";
@@ -1421,7 +1422,8 @@ public class MainActivity extends Activity {
 		action = "terminal";
 		inoka = new ShizukuHelper(MainActivity.this, 2167);
 		LanguageLoader.init(this);
-		LanguageLoader.set("assets/languages/id.json");
+		LanguageMenu.load(this, user);
+itemsetting_language_value.setText(LanguageMenu.nameOf(LanguageMenu.saved(user)));
 		
 		item1 = "1";
 		item2 = "1";
@@ -1989,7 +1991,8 @@ public class MainActivity extends Activity {
 		
 		exitDialog();
 	}
-	
+	
+
 	public void _more() {
 	}
 	
@@ -2608,7 +2611,8 @@ public class MainActivity extends Activity {
 		
 		themeHelper.setColorRipple(itemsetting_terminaltextsize, themeHelper.getColor("colorSurfaceContainer"), 26f);
 		themeHelper.setColorRipple(itemsetting_appearances, themeHelper.getColor("colorSurfaceContainer"), 26f);
-		
+		themeHelper.setColorRipple(itemsetting_language, themeHelper.getColor("colorSurfaceContainer"), 26f);
+        
 		currentview_title.setTextColor(themeHelper.getColor("colorPrimary"));
 		currentview_subtitle.setTextColor(themeHelper.getColor("colorOnSurfaceVariant"));
 		shellscreen_title.setTextColor(themeHelper.getColor("colorOnSurfaceVariant"));
@@ -2627,6 +2631,7 @@ public class MainActivity extends Activity {
 		
 		ImageView[] icons = {
 			itemsetting_terminaltextsize_icon, 
+            itemsetting_language_icon,
 			appearanceitem_icontheme,
 			appearanceitem_iconansi,
 			appearanceitem_iconmodule,
@@ -3676,6 +3681,34 @@ public class MainActivity extends Activity {
 		}
 	}
 	
+    private void applyLanguage(String code) {
+	// shell_output ikut ditimpa LanguageLoader.apply(), jadi log terminal diselamatkan dulu
+	CharSequence shellNow = shell_output.getText();
+	boolean shellUntouched = shellNow.toString().equals(LanguageLoader.get("shell_output", ""));
+	CharSequence shellKeep = new android.text.SpannableStringBuilder(shellNow);
+
+	if (!LanguageLoader.set(MainActivity.this, LanguageMenu.path(code))) return;
+	user.edit().putString("lang", code).apply();
+
+	if (!shellUntouched) shell_output.setText(shellKeep);
+	refreshLanguageDynamic(code);
+}
+
+private void refreshLanguageDynamic(String code) {
+	String[] t = {"page_home_title", "page_apps_title", "page_module_title"};
+	String[] s = {"page_home_subtitle", "page_apps_subtitle", "page_module_subtitle"};
+	int p = Math.max(0, Math.min(2, viewpager.getCurrentItem()));
+
+	currentview_title.setText(LanguageLoader.get(t[p]));
+	currentview_subtitle.setText(LanguageLoader.get(s[p]));
+	for (int i = 0; i < 3; i++) bottomnavigation.setTabTitle(i, LanguageLoader.get(t[i]));
+	sengame_openbtn.setSliderText(LanguageLoader.get("sengame_slider"));
+	itemsetting_language_value.setText(LanguageMenu.nameOf(code));
+
+	lastState = -1;
+	checkAndUpdateStatus();
+}
+
 	public class ListmoduleAdapter extends BaseAdapter {
 		
 		ArrayList<HashMap<String, Object>> _data;
@@ -3899,4 +3932,4 @@ public class MainActivity extends Activity {
 			return _view;
 		}
 	}
-}
+}

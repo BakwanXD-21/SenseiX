@@ -99,5 +99,10 @@
   "overlay_title": "Permission Required",
   "overlay_subtitle": "Display Over Other Apps",
   "overlay_message": "SenseiX requires the 'Display over other apps' permission to allow performance optimization and real-time overlays to function smoothly in the background.\n\n• Displays real-time performance stats\n• Prevents the optimization process from being terminated by the system\n• Completely safe and does not collect any personal data",
-  "btn_grant_permission": "Grant Permission"
+  "btn_grant_permission": "Grant Permission",
+  
+  "itemsetting_language_title": "Language",
+  "itemsetting_language_subtitle": "Change the app language",
+  "language_dialog_title": "Choose Language",
+  "language_dialog_subtitle": "Applied instantly, no restart needed"
 }

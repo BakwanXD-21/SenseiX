@@ -1,0 +1,319 @@
+package ru.ino.senseix;
+
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Region;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+public class InoInputLayout extends RelativeLayout {
+	
+	private EditText editText;
+	private TextView labelTextView;
+	private GradientDrawable borderDrawable;
+	
+	private float dp;
+	
+	// Default Warna ON (Fokus) dan OFF (Tidak Fokus)
+	private int colorOn = 0xFF42A5F5;   // Biru M3 saat fokus
+	private int colorOff = 0xFFBCC8D4;  // Abu-abu saat tidak fokus
+	private int currentBorderColor = colorOff;
+	
+	// Variabel posisi Y animasi label
+	private float labelInsideY;  
+	private float labelAboveY;   
+	private boolean isExpanded = false; 
+	
+	public InoInputLayout(Context context) {
+		super(context);
+		init(context);
+	}
+	
+	public InoInputLayout(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		init(context);
+	}
+	
+	private void init(Context context) {
+		dp = context.getResources().getDisplayMetrics().density;
+		
+		int idEditTextPath = View.generateViewId();
+		int idLabelPath = View.generateViewId();
+		
+		// 1. Setup EditText Default (Multiline & Wrap Content)
+		editText = new EditText(context);
+		editText.setId(idEditTextPath);
+		editText.setTextSize(14);
+		editText.setTextColor(Color.WHITE);
+		
+		editText.setSingleLine(false);
+		editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+		editText.setGravity(Gravity.TOP | Gravity.START);
+		
+		editText.setBackgroundColor(Color.TRANSPARENT);
+		
+		int verticalPadding = (int)(16 * dp);
+		int horizontalPadding = (int)(16 * dp);
+		editText.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
+		
+		RelativeLayout.LayoutParams pathParams = new RelativeLayout.LayoutParams(
+		RelativeLayout.LayoutParams.MATCH_PARENT,
+		RelativeLayout.LayoutParams.WRAP_CONTENT
+		);
+		editText.setMinHeight((int)(56 * dp));
+		pathParams.setMargins(0, (int)(8 * dp), 0, (int)(16 * dp));
+		editText.setLayoutParams(pathParams);
+		
+		// 2. Setup Background Border
+		borderDrawable = new GradientDrawable();
+		borderDrawable.setColor(Color.TRANSPARENT);
+		borderDrawable.setCornerRadius(12 * dp);
+		borderDrawable.setStroke((int)(1.5f * dp), colorOff);
+		
+		// 3. Setup Label (TextView)
+		labelTextView = new TextView(context);
+		labelTextView.setId(idLabelPath);
+		labelTextView.setText("Dependency");
+		labelTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+		labelTextView.setTextColor(colorOff);
+		labelTextView.setTypeface(Typeface.SANS_SERIF);
+		labelTextView.setBackgroundColor(Color.TRANSPARENT); 
+		labelTextView.setPadding((int)(4 * dp), 0, (int)(4 * dp), 0);
+		
+		labelTextView.setPivotX(0f);
+		labelTextView.setPivotY(0f);
+		
+		RelativeLayout.LayoutParams labelParams = new RelativeLayout.LayoutParams(
+		RelativeLayout.LayoutParams.WRAP_CONTENT,
+		RelativeLayout.LayoutParams.WRAP_CONTENT
+		);
+		labelParams.addRule(RelativeLayout.ALIGN_TOP, idEditTextPath);
+		labelParams.addRule(RelativeLayout.ALIGN_START, idEditTextPath);
+		labelParams.setMargins((int)(12 * dp), 0, 0, 0);
+		labelTextView.setLayoutParams(labelParams);
+		
+		labelTextView.setVisibility(View.VISIBLE); 
+		
+		addView(editText);
+		addView(labelTextView);
+		
+		// Listener Sensor Fokus & Perubahan Teks
+		editText.setOnFocusChangeListener((v, hasFocus) -> updateLayoutState(hasFocus));
+		editText.addTextChangedListener(new TextWatcher() {
+			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+			@Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+			@Override public void afterTextChanged(Editable s) {
+				if (!editText.isFocused()) {
+					updateLayoutState(false);
+				}
+			}
+		});
+	}
+	
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		super.onLayout(changed, l, t, r, b);
+		
+		if (editText != null && labelTextView != null) {
+			labelAboveY = -(labelTextView.getHeight() / 2f);
+			
+			// Jika satu baris ditaruh pas di tengah, jika banyak baris ditaruh di top padding
+			if ((editText.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == 0) {
+				labelInsideY = (editText.getHeight() - labelTextView.getHeight()) / 2f;
+			} else {
+				labelInsideY = editText.getPaddingTop();
+			}
+			
+			if (!isExpanded && editText.getText().length() == 0 && !editText.isFocused()) {
+				labelTextView.setTranslationY(labelInsideY);
+			}
+		}
+	}
+	
+	private void updateLayoutState(boolean hasFocus) {
+		boolean hasText = editText.getText().length() > 0;
+		int targetColor = hasFocus ? colorOn : colorOff;
+		float targetStrokeWidth = hasFocus ? 2 * dp : 1.5f * dp;
+		
+		ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), currentBorderColor, targetColor);
+		colorAnimation.setDuration(150);
+		colorAnimation.addUpdateListener(animator -> {
+			currentBorderColor = (int) animator.getAnimatedValue();
+			borderDrawable.setStroke((int) targetStrokeWidth, currentBorderColor);
+			if (hasFocus || hasText) {
+				labelTextView.setTextColor(currentBorderColor);
+			} else {
+				labelTextView.setTextColor(colorOff);
+			}
+			invalidate();
+		});
+		colorAnimation.start();
+		
+		if (hasFocus || hasText) {
+			if (!isExpanded) {
+				labelTextView.animate()
+				.translationY(labelAboveY)
+				.scaleX(0.85f)
+				.scaleY(0.85f)
+				.setDuration(150)
+				.start();
+				isExpanded = true;
+			}
+		} else {
+			if (isExpanded) {
+				labelTextView.animate()
+				.translationY(labelInsideY)
+				.scaleX(1.0f)
+				.scaleY(1.0f)
+				.setDuration(150)
+				.start();
+				isExpanded = false;
+			}
+		}
+	}
+	
+	@Override
+	protected void dispatchDraw(Canvas canvas) {
+		if (editText != null) {
+			borderDrawable.setBounds(
+			editText.getLeft(),
+			editText.getTop(),
+			editText.getRight(),
+			editText.getBottom()
+			);
+			
+			if (labelTextView != null && isExpanded) {
+				canvas.save();
+				
+				float labelLeft = labelTextView.getLeft() + labelTextView.getTranslationX();
+				float scaledWidth = labelTextView.getWidth() * 0.85f;
+				
+				canvas.clipRect(
+				labelLeft, 
+				editText.getTop() - (4 * dp), 
+				labelLeft + scaledWidth, 
+				editText.getTop() + (4 * dp), 
+				Region.Op.DIFFERENCE
+				);
+				
+				borderDrawable.draw(canvas);
+				canvas.restore();
+			} else {
+				borderDrawable.draw(canvas);
+			}
+		}
+		
+		super.dispatchDraw(canvas);
+	}
+	
+	// ==========================================
+	//            METODE SETTER & GETTER
+	// ==========================================
+	
+	// Get komponen inti jika butuh memodifikasi properti bawaan dasar lainnya
+	public EditText getEditText() { return editText; }
+	public TextView getLabelTextView() { return labelTextView; }
+	
+	// Set Teks Label (Judul atas/Hint)
+	public void setLabelText(String text) {
+		labelTextView.setText(text);
+		requestLayout();
+		invalidate();
+	}
+	
+	// Ambil & Set Input Teks Masukan Utama
+	public String getText() {
+		return editText.getText().toString();
+	}
+	
+	public void setText(String text) {
+		editText.setText(text);
+		updateLayoutState(editText.isFocused());
+	}
+	
+	// Mengatur Warna Tema (Fokus & Tidak Fokus)
+	public void setColors(int colorOn, int colorOff) {
+		this.colorOn = colorOn;
+		this.colorOff = colorOff;
+		this.currentBorderColor = editText.isFocused() ? colorOn : colorOff;
+		updateLayoutState(editText.isFocused());
+	}
+	
+	// Mengatur Warna Teks Masukan
+	public void setTextColor(int color) {
+		editText.setTextColor(color);
+	}
+	
+	// Mengatur Radius Sudut Kotak Border (dalam satuan DP)
+	public void setCornerRadius(float radiusInDp) {
+		borderDrawable.setCornerRadius(radiusInDp * dp);
+		invalidate();
+	}
+	
+	// Mengatur Ukuran Ukuran Font Teks Masukan (dalam satuan SP)
+	public void setTextSize(float sizeInSp) {
+		editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeInSp);
+	}
+	
+	// Mengatur Ukuran Ukuran Font Label Atas (dalam satuan SP)
+	public void setLabelSize(float sizeInSp) {
+		labelTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeInSp);
+		requestLayout();
+		invalidate();
+	}
+	
+	// Mengatur Mode Satu Baris (Single Line) atau Banyak Baris (Multiline) via Boolean
+	public void setIsMultiline(boolean multiline) {
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) editText.getLayoutParams();
+		if (multiline) {
+			editText.setSingleLine(false);
+			editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+			editText.setGravity(Gravity.TOP | Gravity.START);
+			params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+			editText.setPadding((int)(16 * dp), (int)(16 * dp), (int)(16 * dp), (int)(16 * dp));
+		} else {
+			editText.setSingleLine(true);
+			editText.setInputType(InputType.TYPE_CLASS_TEXT);
+			editText.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+			params.height = (int)(56 * dp); // Kunci tinggi konstan di 56dp jika satu baris
+			editText.setPadding((int)(16 * dp), 0, (int)(16 * dp), 0);
+		}
+		editText.setLayoutParams(params);
+		requestLayout();
+		invalidate();
+	}
+	
+	// Mengatur Jumlah Baris Statis / Tinggi Default Awal Kolom
+	public void setLines(int lines) {
+		editText.setLines(lines);
+		requestLayout();
+	}
+	
+	// Mengatur Batas Maksimal Baris Ketikan (Max Lines)
+	public void setMaxLines(int maxLines) {
+		editText.setMaxLines(maxLines);
+		requestLayout();
+	}
+	
+	public void setMinHeight(int minHeightInPx) {
+		if (editText != null) {
+			editText.setMinHeight(minHeightInPx);
+			requestLayout();
+		}
+	}
+	
+}
